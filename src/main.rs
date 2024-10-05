@@ -1,6 +1,7 @@
 use clap::Parser;
 use std::env;
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -36,14 +37,8 @@ fn resolve_fake_path(path: &str) -> PathBuf {
     }
 }
 
-fn main() {
-    let args = Cli::parse();
-
-    let real_path = resolve_real_path(&args.real_path);
-    let fake_path = resolve_fake_path(&args.fake_path);
-
-    // Create parent directories for fake_path if they don't exist
-    if let Some(parent_dir) = fake_path.parent() {
+fn make_parent_dirs(path: &Path) {
+    if let Some(parent_dir) = path.parent() {
         if !parent_dir.exists() {
             if let Err(e) = fs::create_dir_all(parent_dir) {
                 eprintln!(
@@ -55,6 +50,15 @@ fn main() {
             }
         }
     }
+}
+
+fn main() {
+    let args = Cli::parse();
+
+    let real_path = resolve_real_path(&args.real_path);
+    let fake_path = resolve_fake_path(&args.fake_path);
+
+    make_parent_dirs(&fake_path);
 
     // Build and execute ln -s real_path fake_path
     let status = Command::new("ln")
