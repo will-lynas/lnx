@@ -52,14 +52,7 @@ fn make_parent_dirs(path: &Path) {
     }
 }
 
-fn main() {
-    let args = Cli::parse();
-
-    let real_path = resolve_real_path(&args.real_path);
-    let fake_path = resolve_fake_path(&args.fake_path);
-
-    make_parent_dirs(&fake_path);
-
+fn make_link(real_path: &Path, fake_path: &Path) {
     // Build and execute ln -s real_path fake_path
     let status = Command::new("ln")
         .arg("-s")
@@ -72,4 +65,14 @@ fn main() {
         eprintln!("ln command failed");
         std::process::exit(status.code().unwrap_or(1));
     }
+}
+
+fn main() {
+    let args = Cli::parse();
+
+    let real_path = resolve_real_path(&args.real_path);
+    let fake_path = resolve_fake_path(&args.fake_path);
+
+    make_parent_dirs(&fake_path);
+    make_link(&real_path, &fake_path);
 }
