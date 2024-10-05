@@ -53,7 +53,6 @@ fn make_parent_dirs(path: &Path) {
 }
 
 fn make_link(real_path: &Path, fake_path: &Path) {
-    // Build and execute ln -s real_path fake_path
     let status = Command::new("ln")
         .arg("-s")
         .arg(real_path.as_os_str())
