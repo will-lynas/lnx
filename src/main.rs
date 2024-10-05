@@ -10,9 +10,11 @@ use std::process::Command;
     about = "Creates symbolic links with resolved absolute paths."
 )]
 struct Cli {
+    /// The real path
     #[arg(long, short)]
     real_path: String,
 
+    /// The name of the symlink that will be created
     #[arg(long, short)]
     fake_path: String,
 }
