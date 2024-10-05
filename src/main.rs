@@ -17,30 +17,28 @@ struct Cli {
     fake_path: String,
 }
 
-fn get_absolute_path(path: &str, is_real: bool) -> PathBuf {
+fn resolve_real_path(path: &str) -> PathBuf {
     let p = PathBuf::from(path);
-    if is_real {
-        // For real_path, we need to ensure it exists
-        fs::canonicalize(&p).unwrap_or_else(|_| {
-            eprintln!("Error: real_path '{}' does not exist.", path);
-            std::process::exit(1);
-        })
+    fs::canonicalize(&p).unwrap_or_else(|_| {
+        eprintln!("Error: real_path '{}' does not exist.", path);
+        std::process::exit(1);
+    })
+}
+
+fn resolve_fake_path(path: &str) -> PathBuf {
+    let p = PathBuf::from(path);
+    if p.is_absolute() {
+        p
     } else {
-        // For fake_path, it might not exist yet
-        if p.is_absolute() {
-            p
-        } else {
-            env::current_dir().unwrap().join(p)
-        }
+        env::current_dir().unwrap().join(p)
     }
 }
 
 fn main() {
     let args = Cli::parse();
 
-    // Resolve paths to absolute paths
-    let real_path = get_absolute_path(&args.real_path, true);
-    let fake_path = get_absolute_path(&args.fake_path, false);
+    let real_path = resolve_real_path(&args.real_path);
+    let fake_path = resolve_fake_path(&args.fake_path);
 
     // Create parent directories for fake_path if they don't exist
     if let Some(parent_dir) = fake_path.parent() {
